@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="ar" dir="rtl" data-theme="auto">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#0F2A1F">
+<meta name="color-scheme" content="light dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="قصقصه">
+<title>قصقصه</title>
+<script>(function(){try{var t=localStorage.getItem('qs_theme');if(t==='light'||t==='dark'||t==='auto'){document.documentElement.setAttribute('data-theme',t);}if(localStorage.getItem('qs_fs')==='big'){document.documentElement.classList.add('big-text');}}catch(e){}})();</script>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<!--SPRITE-->
+<div class="shell" id="shell">
+
+  <header class="topbar">
+    <div class="tb-start">
+      <button class="icon-btn tb-back" id="backBtn" type="button" aria-label="رجوع" hidden><svg class="ic" aria-hidden="true"><use href="#i-back"/></svg></button>
+      <div class="brand" id="brand"><!--LOGO--></div>
+      <h1 class="tb-title" id="tbTitle" hidden></h1>
+    </div>
+    <div class="tb-end">
+      <button class="icon-btn" id="menuBtn" type="button" aria-label="القائمة" aria-expanded="false" aria-controls="drawer"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg></button>
+    </div>
+  </header>
+
+  <main class="stage" id="stage">
+
+    <!-- ===================== Tab: قص ===================== -->
+    <section class="screen tab on" id="tab-cut" data-tab="cut" aria-label="قص">
+
+      <!-- 1. pick -->
+      <div class="state pick" id="st-pick">
+        <div class="hint-card" id="iosHint" hidden>
+          <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+          <p>للجودة الأصلية اختر من «الملفات»، أو من الصور ← خيارات ← الحالي.</p>
+          <button class="icon-btn sm" id="hintClose" type="button" aria-label="أقفل التلميحة"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+        </div>
+
+        <div class="pick-card" id="dropZone">
+          <div class="pick-mark" aria-hidden="true"><svg class="ic"><use href="#i-scissors"/></svg></div>
+          <div class="chip-row center" id="pickChips" hidden></div>
+          <button class="btn primary xl" id="pickBtn" type="button">اختر مقطع</button>
+          <p class="muted sm">يتقص على جهازك. ما يطلع منه شي.</p>
+          <p class="drop-label" aria-hidden="true">أفلته هنا</p>
+        </div>
+
+        <button class="btn ghost" id="demoBtn" type="button"><svg class="ic" aria-hidden="true"><use href="#i-film"/></svg>جرّب بمقطع تجريبي</button>
+        <p class="stage-note">المرحلة 1: الشكل والشاشات. القص الفعلي يجي في النسخة 1.</p>
+        <input type="file" id="fileInput" accept="video/*,.mov,.mp4,.m4v" hidden>
+      </div>
+
+      <!-- 2. reading -->
+      <div class="state reading" id="st-reading" hidden>
+        <div class="read-card">
+          <div class="read-thumb"><img id="readPoster" alt=""></div>
+          <div class="read-body">
+            <p class="read-name" id="readName">—</p>
+            <p class="muted sm" id="readStatus">أقرأ المقطع…</p>
+            <div class="bar" aria-hidden="true"><i id="readBar"></i></div>
+            <p class="read-summary num" id="readSummary" hidden></p>
+            <p class="muted sm" id="readKf" hidden></p>
+            <div class="badges" id="readBadges"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. setup -->
+      <div class="state setup" id="st-setup" hidden>
+        <div class="setup-fixed">
+          <div class="player" id="player">
+            <video id="video" playsinline webkit-playsinline preload="metadata" muted></video>
+            <img id="poster" alt="" hidden>
+            <div class="player-bar">
+              <button class="play-btn" id="playBtn" type="button" aria-label="تشغيل"><svg class="ic" aria-hidden="true"><use href="#i-play"/></svg></button>
+              <span class="ptime num" id="pTime" dir="ltr">0:00 / 10:00</span>
+            </div>
+          </div>
+
+          <div class="info-row">
+            <div class="info-txt">
+              <p class="info-name" id="infoName">—</p>
+              <p class="muted xs num" id="infoSummary" dir="ltr"></p>
+            </div>
+            <button class="btn tonal sm" id="changeBtn" type="button">غيّر</button>
+          </div>
+
+          <div class="tl" id="tl" dir="ltr">
+            <div class="tl-track" id="tlTrack"></div>
+            <div class="tl-foot">
+              <span class="num" id="tlStart">0:00</span>
+              <span class="tl-msg" id="tlMsg" dir="rtl"></span>
+              <span class="num" id="tlEnd">10:00</span>
+            </div>
+            <div class="nudge" id="nudge" hidden></div>
+          </div>
+        </div>
+
+        <div class="setup-scroll" id="setupScroll">
+          <h2 class="sec-title">كيف تبي تقصه؟</h2>
+          <div class="chip-row scroll" id="modeChips" role="radiogroup" aria-label="طريقة القص"></div>
+
+          <div class="card panel" id="modePanel"></div>
+
+          <div class="card row-card">
+            <div class="row-txt">
+              <p class="row-title">قص البداية والنهاية</p>
+              <p class="muted xs" id="trimNote">شيل جزء من أول المقطع أو آخره قبل التقسيم</p>
+            </div>
+            <button class="switch" id="trimSwitch" type="button" role="switch" aria-checked="false" aria-label="قص البداية والنهاية"><i></i></button>
+          </div>
+
+          <h2 class="sec-title">الدقة</h2>
+          <div class="seg-choice" id="precision" role="radiogroup" aria-label="الدقة">
+            <button type="button" class="choice" data-v="fast" role="radio">
+              <svg class="ic" aria-hidden="true"><use href="#i-fast"/></svg>
+              <span class="c-title">سريع</span><span class="c-sub">نفس الجودة</span>
+            </button>
+            <button type="button" class="choice" data-v="exact" role="radio">
+              <svg class="ic" aria-hidden="true"><use href="#i-exact"/></svg>
+              <span class="c-title">دقيق</span><span class="c-sub">على الفريم</span>
+            </button>
+          </div>
+          <p class="muted sm precision-note" id="precisionNote"></p>
+
+          <button class="link-btn" id="saveTplBtn" type="button"><svg class="ic" aria-hidden="true"><use href="#i-bookmark"/></svg>احفظ كقالب</button>
+
+          <div class="cta-bar in-tab">
+            <button class="btn primary block" id="reviewBtn" type="button">راجع الأجزاء (4)</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== Tab: قوالب ===================== -->
+    <section class="screen tab" id="tab-templates" data-tab="templates" aria-label="قوالب">
+      <h2 class="sec-title first">المنصات</h2>
+      <div class="list" id="platformList"></div>
+      <h2 class="sec-title">قوالبي</h2>
+      <div class="list" id="myList"></div>
+      <div class="cta-bar in-tab">
+        <button class="btn tonal block" id="newTplBtn" type="button"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>قالب جديد</button>
+      </div>
+    </section>
+
+    <!-- ===================== Tab: السجل ===================== -->
+    <section class="screen tab" id="tab-history" data-tab="history" aria-label="السجل">
+      <div class="list" id="historyList"></div>
+      <div class="empty" id="historyEmpty">
+        <div class="empty-mark" aria-hidden="true"><svg class="ic"><use href="#i-history"/></svg></div>
+        <p class="empty-title">ما قصيت شي للحين.</p>
+        <p class="muted sm">كل عملية قص تنحفظ هنا بإعداداتها، بدون الفيديو نفسه.</p>
+      </div>
+    </section>
+
+    <!-- ===================== Sub: مراجعة الأجزاء ===================== -->
+    <section class="screen sub" id="sub-review" data-title="مراجعة الأجزاء">
+      <div class="summary-card" id="reviewSummary"></div>
+      <div class="list parts" id="reviewList"></div>
+      <div class="cta-bar">
+        <button class="btn primary block" id="cutBtn" type="button"><svg class="ic" aria-hidden="true"><use href="#i-scissors"/></svg>قصقصها</button>
+        <button class="btn ghost block" id="backSetupBtn" type="button">رجوع للإعداد</button>
+      </div>
+    </section>
+
+    <!-- ===================== Sub: التصدير ===================== -->
+    <section class="screen sub" id="sub-export" data-title="التصدير" data-noback="1">
+      <div class="export-card">
+        <p class="exp-part" id="expPart">الجزء 1 من 4</p>
+        <p class="exp-pct num" id="expPct" dir="ltr">0%</p>
+        <div class="bar big" aria-hidden="true"><i id="expBar"></i></div>
+        <p class="muted sm" id="expLeft">باقي تقريبًا …</p>
+      </div>
+      <p class="demo-tag"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>عرض تجريبي: ما فيه قص فعلي في هالمرحلة</p>
+      <p class="keep-open" id="keepOpen"><svg class="ic" aria-hidden="true"><use href="#i-warning"/></svg>خل الشاشة مفتوحة لين يخلص</p>
+      <div class="list parts" id="exportList"></div>
+      <div class="cta-bar">
+        <button class="btn danger block" id="stopBtn" type="button"><svg class="ic" aria-hidden="true"><use href="#i-stop"/></svg><span>إيقاف</span></button>
+      </div>
+    </section>
+
+    <!-- ===================== Sub: النتائج ===================== -->
+    <section class="screen sub" id="sub-results" data-title="النتائج">
+      <div class="done-card" id="doneCard"></div>
+      <div class="list parts" id="resultsList"></div>
+      <div class="cta-bar">
+        <button class="btn primary block" id="saveAllBtn" type="button"><svg class="ic" aria-hidden="true"><use href="#i-save"/></svg>احفظ الكل</button>
+        <div class="cta-row">
+          <button class="btn tonal desk-only" type="button" data-soon="1" hidden><svg class="ic" aria-hidden="true"><use href="#i-folder"/></svg>مجلد</button>
+          <button class="btn tonal desk-only" type="button" data-soon="1" hidden><svg class="ic" aria-hidden="true"><use href="#i-zip"/></svg>ZIP</button>
+          <button class="btn ghost" id="againBtn" type="button">قص مقطع ثاني</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== Sub: قالب جديد ===================== -->
+    <section class="screen sub" id="sub-newtpl" data-title="قالب جديد">
+      <label class="field">
+        <span class="field-label">اسم القالب</span>
+        <input class="input" id="tplName" type="text" maxlength="30" placeholder="مثل: بودكاست 3 دقايق" autocomplete="off">
+      </label>
+      <h2 class="sec-title">كيف تبي تقصه؟</h2>
+      <div class="chip-row scroll" id="tplModeChips" role="radiogroup" aria-label="طريقة القص"></div>
+      <div class="card panel" id="tplPanel"></div>
+      <div class="cta-bar">
+        <button class="btn primary block" id="tplSaveBtn" type="button">احفظ القالب</button>
+      </div>
+    </section>
+
+    <!-- ===================== Sub: الإعدادات الافتراضية ===================== -->
+    <section class="screen sub" id="sub-settings" data-title="الإعدادات الافتراضية">
+      <h2 class="sec-title first">الدقة الافتراضية</h2>
+      <div class="seg-choice" id="defPrecision" role="radiogroup" aria-label="الدقة الافتراضية">
+        <button type="button" class="choice" data-v="fast" role="radio"><svg class="ic" aria-hidden="true"><use href="#i-fast"/></svg><span class="c-title">سريع</span><span class="c-sub">نفس الجودة</span></button>
+        <button type="button" class="choice" data-v="exact" role="radio"><svg class="ic" aria-hidden="true"><use href="#i-exact"/></svg><span class="c-title">دقيق</span><span class="c-sub">على الفريم</span></button>
+      </div>
+      <h2 class="sec-title">تسمية الأجزاء</h2>
+      <label class="field">
+        <span class="field-label">النمط</span>
+        <input class="input num" id="namePattern" type="text" dir="ltr" autocomplete="off" spellcheck="false">
+      </label>
+      <p class="muted sm">مثال: <bdi class="num" id="nameExample">podcast_01-04.mp4</bdi></p>
+      <div class="tokens" id="nameTokens"></div>
+    </section>
+
+    <!-- ===================== Sub: عن التطبيق ===================== -->
+    <section class="screen sub" id="sub-about" data-title="عن التطبيق">
+      <div class="about-head">
+        <div class="app-icon" aria-hidden="true"><!--LOGO--></div>
+        <div>
+          <p class="about-name">قصقصه</p>
+          <p class="muted sm num" id="aboutVersion"></p>
+        </div>
+      </div>
+      <div class="card note-card">
+        <svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg>
+        <p>كل القص يصير على جهازك. ما فيه سيرفر ولا رفع ولا تتبّع.</p>
+      </div>
+      <h2 class="sec-title">فحص الجهاز</h2>
+      <p class="muted sm">يتأكد إن جوالك يدعم الأشياء اللي يحتاجها القص. أرسل لي النتيجة لو فيها ✗.</p>
+      <div class="list" id="probeList"></div>
+      <div class="cta-bar">
+        <button class="btn tonal block" id="probeCopy" type="button"><svg class="ic" aria-hidden="true"><use href="#i-copy"/></svg>انسخ النتيجة</button>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabbar" id="tabbar" role="tablist" aria-label="الأقسام">
+    <button class="tab-btn on" type="button" role="tab" aria-selected="true" data-tab="cut"><span class="pill"><svg class="ic" aria-hidden="true"><use href="#i-scissors"/></svg></span><span class="tab-lbl">قص</span></button>
+    <button class="tab-btn" type="button" role="tab" aria-selected="false" data-tab="templates"><span class="pill"><svg class="ic" aria-hidden="true"><use href="#i-grid"/></svg></span><span class="tab-lbl">قوالب</span></button>
+    <button class="tab-btn" type="button" role="tab" aria-selected="false" data-tab="history"><span class="pill"><svg class="ic" aria-hidden="true"><use href="#i-history"/></svg></span><span class="tab-lbl">السجل</span></button>
+  </nav>
+
+  <div class="scrim" id="scrim" hidden></div>
+
+  <aside class="drawer" id="drawer" aria-label="القائمة" aria-hidden="true">
+    <div class="drawer-head">
+      <div class="brand"><!--LOGO--></div>
+      <button class="icon-btn" id="drawerClose" type="button" aria-label="أقفل القائمة"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+    </div>
+    <p class="d-label">المظهر</p>
+    <div class="segmented" id="themeSeg" role="radiogroup" aria-label="المظهر">
+      <button type="button" role="radio" data-v="auto"><svg class="ic" aria-hidden="true"><use href="#i-auto"/></svg>تلقائي</button>
+      <button type="button" role="radio" data-v="light"><svg class="ic" aria-hidden="true"><use href="#i-sun"/></svg>فاتح</button>
+      <button type="button" role="radio" data-v="dark"><svg class="ic" aria-hidden="true"><use href="#i-moon"/></svg>غامق</button>
+    </div>
+    <p class="d-label">حجم الخط</p>
+    <div class="segmented two" id="fontSeg" role="radiogroup" aria-label="حجم الخط">
+      <button type="button" role="radio" data-v="normal"><span class="fs-a" aria-hidden="true">أ</span>عادي</button>
+      <button type="button" role="radio" data-v="big"><span class="fs-a big" aria-hidden="true">أ</span>كبير</button>
+    </div>
+    <div class="d-list">
+      <button class="d-item" type="button" data-open="settings"><svg class="ic" aria-hidden="true"><use href="#i-sliders"/></svg><span>الإعدادات الافتراضية</span><svg class="ic chev" aria-hidden="true"><use href="#i-chev"/></svg></button>
+      <button class="d-item" type="button" data-open="about"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg><span>عن التطبيق</span><svg class="ic chev" aria-hidden="true"><use href="#i-chev"/></svg></button>
+      <button class="d-item danger" type="button" id="clearBtn"><svg class="ic" aria-hidden="true"><use href="#i-trash"/></svg><span>امسح البيانات</span></button>
+    </div>
+    <p class="d-version num" id="appVersion"></p>
+  </aside>
+
+  <div class="sheet-wrap" id="sheetWrap" hidden>
+    <div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
