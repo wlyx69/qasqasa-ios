@@ -1,7 +1,7 @@
 /* قصقصه — stage 1 shell: every screen and interaction, demo data, no real cutting yet. */
 'use strict';
 (function () {
-  const VERSION = '1.0.2';
+  const VERSION = '1.0.3';
   const STAGE = 'النسخة 1';
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
@@ -13,6 +13,10 @@
   const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   const inApp = !!(window.webkit && window.webkit.messageHandlers);
   const finePointer = window.matchMedia && window.matchMedia('(pointer: fine)').matches;
+  // installed from Chrome / Edge on a laptop: the page runs in its own app window
+  const appWinMQ = window.matchMedia ? window.matchMedia('(display-mode: standalone)') : null;
+  const isAppWin = () => !inApp && !!(appWinMQ && appWinMQ.matches);
+  const envLabel = () => (inApp ? 'داخل تطبيق IPA' : isAppWin() ? 'تطبيق مثبّت على الجهاز' : 'متصفح');
   const icon = (id, cls = 'ic') => `<svg class="${cls}" aria-hidden="true"><use href="#i-${id}"/></svg>`;
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -372,8 +376,25 @@
   }
 
   // ---------- pick ----------
-  function showHint() { $('#iosHint').hidden = !(isIOS && !store.get('qs_hint', false)); }
+  function showHint() { $('#iosHint').hidden = !(isIOS && !store.get('qs_hint', false)); showInstall(); }
   $('#hintClose').addEventListener('click', () => { store.set('qs_hint', true); showHint(); });
+
+  // ---------- install on the laptop: Chrome / Edge send this event only when the app can be installed ----------
+  let installEvt = null;
+  function showInstall() {
+    $('#installHint').hidden = !(installEvt && !store.get('qs_install_hint', false));
+    $('#installItem').hidden = !installEvt;
+  }
+  async function doInstall() {
+    const e = installEvt; if (!e) return;
+    installEvt = null; showInstall(); openDrawer(false);
+    try { await e.prompt(); await e.userChoice; } catch (err) { /* the browser declined to show it */ }
+  }
+  window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installEvt = e; showInstall(); });
+  window.addEventListener('appinstalled', () => { installEvt = null; showInstall(); toast('تثبّت. تلقاه في قائمة ابدأ'); });
+  $('#installBtn').addEventListener('click', doInstall);
+  $('#installItem').addEventListener('click', doInstall);
+  $('#installClose').addEventListener('click', () => { store.set('qs_install_hint', true); showInstall(); });
   $('#pickBtn').addEventListener('click', () => $('#fileInput').click());
   $('#fileInput').addEventListener('change', (e) => { const f = e.target.files && e.target.files[0]; e.target.value = ''; if (f) readFile(f); });
   $('#demoBtn').addEventListener('click', () => readDemo());
@@ -403,7 +424,7 @@
   $('#errWhy').addEventListener('click', () => {
     const e = S.lastError || {};
     const lines = [
-      `قصقصه ${VERSION} · ${inApp ? 'داخل تطبيق IPA' : 'متصفح'} · المحرك: ${QEngine.mode || '؟'}`,
+      `قصقصه ${VERSION} · ${envLabel()} · المحرك: ${QEngine.mode || '؟'}`,
       `الملف: ${e.name} · ${fmtSize(e.size || 0)} · ${e.type || 'بدون نوع'}`,
       `الخطأ: ${e.detail}`,
       `آمن: ${window.isSecureContext} · WebCodecs: ${typeof VideoDecoder !== 'undefined'} · Worker: ${typeof Worker !== 'undefined'}`,
@@ -1406,7 +1427,7 @@
       r.querySelector('.r-sub').textContent = note;
     };
     const iosv = (navigator.userAgent.match(/OS (\d+)[._](\d+)/) || [])[0];
-    set('env', null, inApp ? 'داخل تطبيق IPA' : 'متصفح');
+    set('env', null, envLabel());
     set('ios', null, iosv ? iosv.replace('OS ', 'iOS ').replace('_', '.') : navigator.platform || '—');
     set('secure', !!window.isSecureContext, window.isSecureContext ? 'نعم' : 'لا: WebCodecs ما يشتغل بدونه');
     const has = (n) => typeof window[n] !== 'undefined';
@@ -1449,8 +1470,18 @@
   });
 
   // ---------- QA view hashes (#qa-se small phone, #qa-wide laptop width) ----------
-  function qaView() { const h = location.hash; document.documentElement.classList.toggle('qa-se', h === '#qa-se'); document.documentElement.classList.toggle('qa-wide', h === '#qa-wide'); setTimeout(() => positionTrack(), 50); }
+  function qaView() { const h = location.hash; document.documentElement.classList.toggle('qa-se', h === '#qa-se'); document.documentElement.classList.toggle('qa-wide', h === '#qa-wide'); document.documentElement.classList.toggle('app-win', isAppWin() || h === '#qa-app'); setTimeout(() => positionTrack(), 50); }
   window.addEventListener('hashchange', qaView); qaView();
+  if (appWinMQ && appWinMQ.addEventListener) appWinMQ.addEventListener('change', qaView);
+  // first launch of the installed app: open as a phone-width window in the middle of the screen (later the user's own size wins)
+  if (isAppWin() && finePointer && !store.get('qs_win', false)) {
+    store.set('qs_win', true);
+    try {
+      const w = Math.min(540, screen.availWidth), h = Math.min(980, screen.availHeight);
+      window.resizeTo(w, h);
+      window.moveTo((screen.availLeft || 0) + Math.round((screen.availWidth - w) / 2), (screen.availTop || 0) + Math.round((screen.availHeight - h) / 2));
+    } catch (e) { /* the browser keeps its own size */ }
+  }
 
   // ---------- boot ----------
   applyTheme(document.documentElement.getAttribute('data-theme') || 'auto');

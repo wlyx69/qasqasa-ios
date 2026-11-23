@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Assemble App/Resources/www from web/: inject the Phosphor icon sprite and the logo into index.html,
-copy app.css / app.js. Fonts live directly in App/Resources/www/fonts.
+copy app.css / app.js / manifest.json. Fonts, favicon and the app icons (icon-*.png, made from favicon.svg and
+tools/app-icon-maskable.svg with rsvg-convert) live directly in App/Resources/www.
 
 Usage: python3 tools/build_web.py   (icons: tools/icons, Phosphor regular, MIT)
 """
@@ -56,7 +57,7 @@ def main():
     html = html.replace('<!--SPRITE-->', sprite(regular))
     html = html.replace('<!--LOGO-->', logo())
     (OUT / 'index.html').write_text(html)
-    for name in ('app.css', 'app.js', 'engine.js', 'cut-worker.js', 'engine-client.js', 'save.js', 'zip.js'):
+    for name in ('app.css', 'app.js', 'engine.js', 'cut-worker.js', 'engine-client.js', 'save.js', 'zip.js', 'manifest.json'):
         (OUT / name).write_text((WEB / name).read_text())
     vendor = OUT / 'vendor'; vendor.mkdir(exist_ok=True)
     for f in vendor.iterdir():  # drop files that are no longer vendored

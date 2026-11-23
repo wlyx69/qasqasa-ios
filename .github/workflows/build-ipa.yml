@@ -7,6 +7,7 @@ on:
       - 'dist/**'
       - 'README.md'
       - 'DECISIONS.md'
+      - '.github/workflows/pages.yml'
   workflow_dispatch:
 
 permissions:

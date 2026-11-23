@@ -1,0 +1,43 @@
+name: Publish laptop app (GitHub Pages)
+
+# The same app files as the IPA (App/Resources/www), served over HTTPS so Chrome / Edge can install it
+# on a laptop as an app that works offline. Runs on every change to those files.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'App/Resources/www/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload the app files
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: App/Resources/www
+
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

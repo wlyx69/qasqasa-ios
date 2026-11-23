@@ -26,7 +26,7 @@
   --chip:#E6EBDD; --chip-ink:#0F2A1F; --chip-on:#0F2A1F; --chip-on-ink:#D4FF3A;
   --danger:#B42318; --danger-bg:#FCE8E6; --warn:#6E4B00; --warn-bg:#FFF3CF; --ok:#1E7A3B;
   --track:#0F2A1F; --seg-a:#D4FF3A; --seg-b:#AEDB2C; --seg-ink:#0F2A1F; --dim:rgba(7,18,13,.62);
-  --scrim:rgba(7,18,13,.52); --sheet:#FFFFFF;
+  --scrim:rgba(7,18,13,.52); --sheet:#FFFFFF; --side:#E3E8DA;
   color-scheme:light;
 }
 :root.big-text{--fs:1.2}
@@ -36,7 +36,7 @@
   --accent-edge:#D4FF3A;
   --chip:#173128; --chip-ink:#EEF4E6; --chip-on:#D4FF3A; --chip-on-ink:#0F2A1F;
   --danger:#FF8F80; --danger-bg:#3A1612; --warn:#FFD978; --warn-bg:#352B0A; --ok:#86E29F;
-  --track:#020805; --scrim:rgba(0,0,0,.62); --sheet:#12261D;
+  --track:#020805; --scrim:rgba(0,0,0,.62); --sheet:#12261D; --side:#030906;
   color-scheme:dark;
 }
 @media (prefers-color-scheme:dark){
@@ -46,7 +46,7 @@
     --accent-edge:#D4FF3A;
     --chip:#173128; --chip-ink:#EEF4E6; --chip-on:#D4FF3A; --chip-on-ink:#0F2A1F;
     --danger:#FF8F80; --danger-bg:#3A1612; --warn:#FFD978; --warn-bg:#352B0A; --ok:#86E29F;
-    --track:#020805; --scrim:rgba(0,0,0,.62); --sheet:#12261D;
+    --track:#020805; --scrim:rgba(0,0,0,.62); --sheet:#12261D; --side:#030906;
     color-scheme:dark;
   }
 }
@@ -452,6 +452,11 @@ bdi{unicode-bidi:isolate}
   html,body{background:#CFD5C7}
   .shell{left:50%;right:auto;width:430px;transform:translateX(-50%);box-shadow:0 0 0 1px rgba(0,0,0,.12),0 24px 60px rgba(0,0,0,.22)}
 }
+/* installed app window on a laptop: full-width bar on top, the app as a centred column (same layout as above) */
+@media (min-width:700px){
+  html.app-win,html.app-win body{background:linear-gradient(var(--bar) 0 calc(var(--topbar-h) + var(--sat)),var(--side) 0)}
+  html.app-win .shell{width:520px;box-shadow:0 0 0 1px var(--line)}
+}
 html.qa-se .shell{width:375px}
 html.qa-wide .shell{left:0;right:0;width:auto;transform:none;box-shadow:none}
 html.qa-wide .screen{padding-left:max(16px,calc((100% - 640px)/2));padding-right:max(16px,calc((100% - 640px)/2))}
@@ -463,3 +468,13 @@ html.qa-wide .screen{padding-left:max(16px,calc((100% - 640px)/2));padding-right
 /* update bar (web only) */
 .update-bar{position:absolute;left:16px;right:16px;top:calc(var(--topbar-h) + var(--sat) + 10px);z-index:55;display:flex;align-items:center;justify-content:space-between;gap:12px;
   padding:8px 8px 8px 16px;padding-inline-start:16px;border-radius:16px;background:var(--surface);border:1px solid var(--line);box-shadow:0 8px 24px rgba(0,0,0,.14);font-weight:600}
+
+/* install offer (Chrome / Edge on a laptop) */
+.install-card{align-items:center;background:var(--surface);color:var(--text);border:1px solid var(--line);padding:8px 8px 8px 6px;padding-inline-start:12px}
+.install-card .ic{margin-top:0;color:var(--text-2)}
+.install-card .btn{flex:none}
+
+/* mouse devices (laptop): slim scrollbars instead of the thick classic ones */
+@media (pointer:fine){
+  .screen,.sheet,.drawer,.diag{scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent}
+}

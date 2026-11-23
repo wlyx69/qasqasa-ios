@@ -1,9 +1,10 @@
 <!doctype html>
-<html lang="ar" dir="rtl" data-theme="auto">
+<html lang="ar" dir="rtl" data-theme="auto" translate="no">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#0F2A1F">
+<meta name="google" content="notranslate">
 <meta name="color-scheme" content="light dark">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -12,6 +13,7 @@
 <script>(function(){try{var t=localStorage.getItem('qs_theme');if(t==='light'||t==='dark'||t==='auto'){document.documentElement.setAttribute('data-theme',t);}if(localStorage.getItem('qs_fs')==='big'){document.documentElement.classList.add('big-text');}}catch(e){}})();</script>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="app.css">
 </head>
 <body>
@@ -40,6 +42,13 @@
           <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
           <p>للجودة الأصلية اختر من «الملفات»، أو من الصور ← خيارات ← الحالي.</p>
           <button class="icon-btn sm" id="hintClose" type="button" aria-label="أقفل التلميحة"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+        </div>
+
+        <div class="hint-card install-card" id="installHint" hidden>
+          <svg class="ic" aria-hidden="true"><use href="#i-save"/></svg>
+          <p>ثبّته على جهازك: له أيقونة ونافذة لحاله، ويشتغل بدون نت.</p>
+          <button class="btn sm primary" id="installBtn" type="button">ثبّت</button>
+          <button class="icon-btn sm" id="installClose" type="button" aria-label="أقفل التلميحة"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>
         </div>
 
         <div class="pick-card" id="dropZone">
@@ -276,6 +285,7 @@
       <button type="button" role="radio" data-v="big"><span class="fs-a big" aria-hidden="true">أ</span>كبير</button>
     </div>
     <div class="d-list">
+      <button class="d-item" type="button" id="installItem" hidden><svg class="ic" aria-hidden="true"><use href="#i-save"/></svg><span>ثبّته على الجهاز</span></button>
       <button class="d-item" type="button" data-open="settings"><svg class="ic" aria-hidden="true"><use href="#i-sliders"/></svg><span>الإعدادات الافتراضية</span><svg class="ic chev" aria-hidden="true"><use href="#i-chev"/></svg></button>
       <button class="d-item" type="button" data-open="about"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg><span>عن التطبيق</span><svg class="ic chev" aria-hidden="true"><use href="#i-chev"/></svg></button>
       <button class="d-item danger" type="button" id="clearBtn"><svg class="ic" aria-hidden="true"><use href="#i-trash"/></svg><span>امسح البيانات</span></button>
