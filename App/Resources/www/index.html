@@ -50,8 +50,8 @@
           <p class="drop-label" aria-hidden="true">أفلته هنا</p>
         </div>
 
+        <button class="link-btn err-why" id="errWhy" type="button" hidden><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>وش السبب؟</button>
         <button class="btn ghost" id="demoBtn" type="button"><svg class="ic" aria-hidden="true"><use href="#i-film"/></svg>جرّب بمقطع تجريبي</button>
-        <p class="stage-note">المرحلة 1: الشكل والشاشات. القص الفعلي يجي في النسخة 1.</p>
         <input type="file" id="fileInput" accept="video/*,.mov,.mp4,.m4v" hidden>
       </div>
 
@@ -127,6 +127,7 @@
             </button>
           </div>
           <p class="muted sm precision-note" id="precisionNote"></p>
+            <div class="inline-switch" id="mp4Row" hidden><div><p class="row-title">حوّل لـ MP4</p><p class="muted xs">نفس الجودة، يتغير الغلاف بس. يفيد لواتساب وويندوز</p></div><button class="switch" type="button" role="switch" aria-checked="false" id="mp4Switch" aria-label="حوّل لـ MP4"><i></i></button></div>
 
           <button class="link-btn" id="saveTplBtn" type="button"><svg class="ic" aria-hidden="true"><use href="#i-bookmark"/></svg>احفظ كقالب</button>
 
@@ -176,7 +177,7 @@
         <div class="bar big" aria-hidden="true"><i id="expBar"></i></div>
         <p class="muted sm" id="expLeft">باقي تقريبًا …</p>
       </div>
-      <p class="demo-tag"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>عرض تجريبي: ما فيه قص فعلي في هالمرحلة</p>
+      <p class="demo-tag" id="expDemo"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>مقطع تجريبي: القص هنا محاكاة. اختر مقطع من جهازك للقص الفعلي.</p>
       <p class="keep-open" id="keepOpen"><svg class="ic" aria-hidden="true"><use href="#i-warning"/></svg>خل الشاشة مفتوحة لين يخلص</p>
       <div class="list parts" id="exportList"></div>
       <div class="cta-bar">
@@ -191,8 +192,8 @@
       <div class="cta-bar">
         <button class="btn primary block" id="saveAllBtn" type="button"><svg class="ic" aria-hidden="true"><use href="#i-save"/></svg>احفظ الكل</button>
         <div class="cta-row">
-          <button class="btn tonal desk-only" type="button" data-soon="1" hidden><svg class="ic" aria-hidden="true"><use href="#i-folder"/></svg>مجلد</button>
-          <button class="btn tonal desk-only" type="button" data-soon="1" hidden><svg class="ic" aria-hidden="true"><use href="#i-zip"/></svg>ZIP</button>
+          <button class="btn tonal desk-only" type="button" id="folderBtn" hidden><svg class="ic" aria-hidden="true"><use href="#i-folder"/></svg>مجلد</button>
+          <button class="btn tonal desk-only" type="button" id="zipBtn" hidden><svg class="ic" aria-hidden="true"><use href="#i-zip"/></svg>ZIP</button>
           <button class="btn ghost" id="againBtn" type="button">قص مقطع ثاني</button>
         </div>
       </div>
@@ -288,6 +289,9 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </div>
+<script src="zip.js"></script>
+<script src="save.js"></script>
+<script src="engine-client.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

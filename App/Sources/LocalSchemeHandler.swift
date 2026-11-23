@@ -35,6 +35,8 @@ final class LocalSchemeHandler: NSObject, WKURLSchemeHandler {
         let ext = fileURL.pathExtension.lowercased()
         var mime = UTType(filenameExtension: ext)?.preferredMIMEType ?? "application/octet-stream"
         if ext == "html" { mime = "text/html" }
+        if ext == "js" || ext == "mjs" { mime = "text/javascript" }
+        if ext == "woff2" { mime = "font/woff2" }
         if mime.hasPrefix("text/") || mime == "application/javascript" || mime == "application/json" {
             mime += "; charset=utf-8"
         }
@@ -42,6 +44,7 @@ final class LocalSchemeHandler: NSObject, WKURLSchemeHandler {
             "Content-Type": mime,
             "Content-Length": String(data.count),
             "Cache-Control": "no-cache",
+            "Access-Control-Allow-Origin": "*",
         ]
         guard let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: "HTTP/1.1", headerFields: headers) else {
             urlSchemeTask.didFailWithError(URLError(.cannotCreateFile))

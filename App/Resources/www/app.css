@@ -347,6 +347,11 @@ bdi{unicode-bidi:isolate}
 .state-pill{display:inline-flex;align-items:center;gap:4px;font-size:calc(13px * var(--fs));font-weight:600;color:var(--text-2)}
 .state-pill.ok{color:var(--ok)}
 .state-pill.run{color:var(--text)}
+.state-pill.bad{color:var(--danger)}
+.tip-inline{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 12px;border-radius:14px;background:var(--warn-bg);color:var(--warn)}
+.tip-inline .btn{margin-inline-start:auto}
+#mp4Row{margin-top:12px}
+.done-card #retryFailed{margin-top:8px}
 .state-pill .ic{width:18px;height:18px}
 .part .mini-bar{height:4px;margin-top:6px}
 
@@ -450,3 +455,7 @@ bdi{unicode-bidi:isolate}
 html.qa-se .shell{width:375px}
 html.qa-wide .shell{left:0;right:0;width:auto;transform:none;box-shadow:none}
 html.qa-wide .screen{padding-left:max(16px,calc((100% - 640px)/2));padding-right:max(16px,calc((100% - 640px)/2))}
+
+/* read error details */
+.err-why{align-self:center;color:var(--text-2)}
+.diag{white-space:pre-wrap;word-break:break-all;font-size:calc(12px * var(--fs));line-height:1.5;padding:12px;border-radius:14px;background:var(--surface-2);color:var(--text);user-select:text;-webkit-user-select:text;text-align:left;max-height:40vh;overflow:auto}

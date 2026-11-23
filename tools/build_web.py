@@ -56,8 +56,13 @@ def main():
     html = html.replace('<!--SPRITE-->', sprite(regular))
     html = html.replace('<!--LOGO-->', logo())
     (OUT / 'index.html').write_text(html)
-    for name in ('app.css', 'app.js'):
+    for name in ('app.css', 'app.js', 'engine.js', 'cut-worker.js', 'engine-client.js', 'save.js', 'zip.js'):
         (OUT / name).write_text((WEB / name).read_text())
+    vendor = OUT / 'vendor'; vendor.mkdir(exist_ok=True)
+    for f in vendor.iterdir():  # drop files that are no longer vendored
+        f.unlink()
+    for f in (WEB / 'vendor').iterdir():
+        (vendor / f.name).write_bytes(f.read_bytes())
     print('built', OUT, sum(f.stat().st_size for f in OUT.rglob('*') if f.is_file()), 'bytes')
 
 
