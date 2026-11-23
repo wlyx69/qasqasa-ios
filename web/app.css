@@ -69,7 +69,7 @@ bdi{unicode-bidi:isolate}
 :focus-visible{outline:3px solid var(--accent-edge);outline-offset:2px;border-radius:12px}
 
 /* ---------- shell ---------- */
-.shell{position:fixed;inset:0;overflow:hidden;background:var(--bg)}
+.shell{position:fixed;inset:0;overflow:hidden;overflow:clip;background:var(--bg)}
 .topbar{position:absolute;top:0;left:0;right:0;z-index:30;height:calc(var(--topbar-h) + var(--sat));padding:var(--sat) 6px 0;
   display:flex;align-items:center;justify-content:space-between;background:var(--bar);color:var(--on-bar)}
 .tb-start{display:flex;align-items:center;gap:4px;min-width:0;padding-inline-start:8px}
@@ -83,7 +83,7 @@ bdi{unicode-bidi:isolate}
 .icon-btn.sm .ic{width:20px;height:20px}
 .topbar .icon-btn{color:var(--on-bar)}
 
-.stage{position:absolute;top:calc(var(--topbar-h) + var(--sat));left:0;right:0;bottom:0;overflow:hidden}
+.stage{position:absolute;top:calc(var(--topbar-h) + var(--sat));left:0;right:0;bottom:0;overflow:hidden;overflow:clip} /* clip: nothing can slide it sideways into the hidden screens */
 .screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
   padding:16px 16px 0;background:var(--bg)}
 .screen.tab{visibility:hidden;opacity:0;transition:opacity var(--t-fast) var(--ease),visibility 0s linear var(--t-fast);
