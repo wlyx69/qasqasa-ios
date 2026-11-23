@@ -1,7 +1,7 @@
 /* قصقصه — stage 1 shell: every screen and interaction, demo data, no real cutting yet. */
 'use strict';
 (function () {
-  const VERSION = '1.0.4';
+  const VERSION = '1.0.5';
   const STAGE = 'النسخة 1';
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
