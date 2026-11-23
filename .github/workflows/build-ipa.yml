@@ -5,8 +5,8 @@ on:
     branches: [main]
     paths-ignore:
       - 'dist/**'
-      - 'README.md
-      - 'DECISIONS.md''
+      - 'README.md'
+      - 'DECISIONS.md'
   workflow_dispatch:
 
 permissions:
