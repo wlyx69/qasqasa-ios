@@ -1,7 +1,7 @@
 /* قصقصه — stage 1 shell: every screen and interaction, demo data, no real cutting yet. */
 'use strict';
 (function () {
-  const VERSION = '1.0.1';
+  const VERSION = '1.0.2';
   const STAGE = 'النسخة 1';
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
@@ -686,7 +686,8 @@
     if (S.precision === 'exact') { note.textContent = 'القص على الفريم بالضبط، وياخذ وقت أطول لأنه يعيد بناء الصورة.'; return; }
     if (exactOff) {
       const sh = kfList() && !S.custom ? maxShift() : null;
-      note.innerHTML = 'الدقيق يحتاج معالج فيديو مو متوفر على هالجهاز، فالقص هنا سريع بنفس الجودة' + (sh != null && sh >= 1 ? ` (أكبر فرق متوقع <bdi class="num">${(sh / 1000).toFixed(1)}</bdi> ث)` : '') + '.';
+      const why = typeof VideoEncoder === 'undefined' ? 'الدقيق يحتاج معالج فيديو مو متوفر على هالجهاز' : `الدقيق ما يقدر يفك ترميز ${S.video.codec || 'هالمقطع'} على هالجهاز`;
+      note.innerHTML = why + '، فالقص هنا سريع بنفس الجودة' + (sh != null && sh >= 1 ? ` (أكبر فرق متوقع <bdi class="num">${(sh / 1000).toFixed(1)}</bdi> ث)` : '') + '.';
       return;
     }
     if (!S.video || !kfList()) { note.textContent = 'ما قدرت أقرأ مواقع الـ Keyframes في هالملف.'; return; }
@@ -1051,7 +1052,7 @@
 
   // ---------- export ----------
   let exp = null; let wakeLock = null; let renderPending = false;
-  const canExact = () => typeof VideoEncoder !== 'undefined';
+  const canExact = () => typeof VideoEncoder !== 'undefined' && !(S.video && S.video.meta && S.video.meta.canDecode === false);
   async function keepAwake(on) {
     try {
       if (on && !wakeLock && navigator.wakeLock) { wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', () => { wakeLock = null; }); }
@@ -1139,8 +1140,8 @@
       const want = Math.round(p.d * 1000);
       const ok = r.type === 'part' && Math.abs(r.check.duration - want) <= 1.5 * fr + 2000;
       if (ok) { exp.files[k] = r.file; exp.checks[k] = r.check; exp.state[k] = 'done'; exp.prog[k] = 1; renderExport(); continue; }
-      if (r.type === 'part') console.warn('part length mismatch', k, r.check.duration, want);
-      else console.warn('part failed', k, r.message);
+      if (r.type === 'part') { console.warn('part length mismatch', k, r.check.duration, want); exp.lastError = `length ${r.check.duration} vs ${want}`; }
+      else { console.warn('part failed', k, r.message); exp.lastError = r.message || r.type; }
       exp.tries[k] += 1;
       if (exp.tries[k] < 2) { k -= 1; continue; } // one more try, then move on
       exp.state[k] = 'fail'; renderExport();
@@ -1165,6 +1166,12 @@
     const list = done.map((p) => Object.assign({}, p, { file: e.files[p.k] || null, check: e.checks[p.k] || null }));
     const failed = readyList ? [] : e.list.filter((p, k) => e.state[k] === 'fail');
     keepAwake(false); store.del('qs_running');
+    if (!list.length) { // nothing came out: say so and go back to the setup, no empty results screen
+      closeAllSubs();
+      toast(e.lastError && /exact-unsupported/.test(e.lastError) ? 'الدقيق ما قدر يفك ترميز هالمقطع هنا. جرّب السريع.' : 'ما قدرت أقص ولا جزء. جرّب مرة ثانية أو اختر السريع.');
+      if (e.lastError) S.lastError = { msg: 'cut', detail: e.lastError, name: S.video.name, size: S.video.size, type: '' };
+      return;
+    }
     S.results = { list, saved: new Set(), failed };
     const total = list.reduce((s, p) => s + (p.file ? p.file.size : estSize(p.d)), 0);
     const hist = store.get('qs_hist', []);
@@ -1451,7 +1458,8 @@
   // ---------- offline + updates (web only; the IPA carries its files inside) ----------
   (function () {
     const local = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-    if (inApp || !('serviceWorker' in navigator) || !(location.protocol === 'https:' || local)) return;
+    let framed = true; try { framed = window.top !== window; } catch (e) { /* cross-origin parent */ }
+    if (inApp || framed || !('serviceWorker' in navigator) || !(location.protocol === 'https:' || local)) return;
     let waiting = null;
     const offer = (w) => { waiting = w; $('#updateBar').hidden = false; };
     $('#updateBtn').addEventListener('click', () => {

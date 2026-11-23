@@ -1,7 +1,7 @@
 /* قصقصه — offline: keeps the app's own files (code, engine, fonts) so it opens and cuts without internet.
    The video never passes through here: only the app's files are cached. */
 'use strict';
-const CACHE = 'qasqasa-2f1fc012ad3b';
+const CACHE = 'qasqasa-0c9a687dad37';
 const FILES = ["./", "app.css", "app.js", "apple-touch-icon.png", "cut-worker.js", "engine-client.js", "engine.js", "favicon.svg", "fonts/ibm-plex-sans-arabic-arabic-400-normal.woff2", "fonts/ibm-plex-sans-arabic-arabic-500-normal.woff2", "fonts/ibm-plex-sans-arabic-arabic-600-normal.woff2", "fonts/ibm-plex-sans-arabic-arabic-700-normal.woff2", "fonts/ibm-plex-sans-arabic-latin-400-normal.woff2", "fonts/ibm-plex-sans-arabic-latin-500-normal.woff2", "fonts/ibm-plex-sans-arabic-latin-600-normal.woff2", "fonts/ibm-plex-sans-arabic-latin-700-normal.woff2", "index.html", "save.js", "vendor/mediabunny.js", "zip.js"];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES)));

@@ -4,7 +4,7 @@
 (function () {
 const {
   Input, BlobSource, ALL_FORMATS, QTFF, EncodedPacketSink, Output, Mp4OutputFormat, MovOutputFormat,
-  BufferTarget, StreamTarget, EncodedVideoPacketSource, EncodedAudioPacketSource, Conversion, QUALITY_HIGH, CanvasSink,
+  BufferTarget, StreamTarget, EncodedVideoPacketSource, EncodedAudioPacketSource, Conversion, CanvasSink,
 } = self.Mediabunny;
 
 const US = 1e6;
@@ -48,11 +48,12 @@ async function readMeta(input, size, onProgress) {
   const fps = med ? 1 / med : (stats ? stats.averagePacketRate : 0);
   const vfr = durs.length > 20 && (durs[durs.length - 1] - durs[0]) / (med || 1) > 0.25;
   const hdr = await vt.hasHighDynamicRange().catch(() => false);
+  const canDecode = typeof VideoDecoder !== 'undefined' ? await vt.canDecode().catch(() => false) : false;
   return {
     duration, first, keyframes,
     width: vt.displayWidth, height: vt.displayHeight, rotation: vt.rotation || 0,
     codec: vt.codec, fps: Math.round(fps * 100) / 100, vfr, hdr,
-    hasAudio: !!at, audioCodec: at ? at.codec : null,
+    hasAudio: !!at, audioCodec: at ? at.codec : null, canDecode,
     bitrate: stats ? Math.round(stats.averageBitrate) : null,
     mov: format === QTFF, container: format.name, size,
   };
@@ -150,13 +151,20 @@ async function cutFast(input, meta, part, target, onProgress, isCanceled) {
   }
 }
 
+function exactBitrate(meta) {
+  const src = meta.bitrate || (meta.size * 8) / (meta.duration / US || 1);
+  const factor = meta.codec === 'avc' ? 1.15 : 1.6;
+  return Math.round(Math.min(50e6, Math.max(2e6, src * factor)));
+}
+
 /** Exact: re-encode the picture to H.264 from the exact frame; audio is copied when possible. */
 async function cutExact(input, meta, part, target, onProgress, setCancel) {
   const output = new Output({ format: new Mp4OutputFormat({ fastStart: false }), target });
   const conv = await Conversion.init({
     input, output,
     trim: { start: part.a / US, end: part.b / US },
-    video: { forceTranscode: true, codec: 'avc', quality: QUALITY_HIGH },
+    // «جودة عالية قريبة من الأصل»: follow the source bitrate (H.264 needs more bits than HEVC for the same look)
+    video: { forceTranscode: true, codec: 'avc', bitrate: exactBitrate(meta) },
     tags: {},
     showWarnings: false,
   });
