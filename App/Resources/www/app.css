@@ -459,3 +459,7 @@ html.qa-wide .screen{padding-left:max(16px,calc((100% - 640px)/2));padding-right
 /* read error details */
 .err-why{align-self:center;color:var(--text-2)}
 .diag{white-space:pre-wrap;word-break:break-all;font-size:calc(12px * var(--fs));line-height:1.5;padding:12px;border-radius:14px;background:var(--surface-2);color:var(--text);user-select:text;-webkit-user-select:text;text-align:left;max-height:40vh;overflow:auto}
+
+/* update bar (web only) */
+.update-bar{position:absolute;left:16px;right:16px;top:calc(var(--topbar-h) + var(--sat) + 10px);z-index:55;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:8px 8px 8px 16px;padding-inline-start:16px;border-radius:16px;background:var(--surface);border:1px solid var(--line);box-shadow:0 8px 24px rgba(0,0,0,.14);font-weight:600}

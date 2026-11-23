@@ -1,7 +1,7 @@
 /* قصقصه — stage 1 shell: every screen and interaction, demo data, no real cutting yet. */
 'use strict';
 (function () {
-  const VERSION = '1.0.0';
+  const VERSION = '1.0.1';
   const STAGE = 'النسخة 1';
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
@@ -1448,6 +1448,26 @@
   // ---------- boot ----------
   applyTheme(document.documentElement.getAttribute('data-theme') || 'auto');
   showHint(); renderPickChips(); renderTemplates(); renderHistory(); updateTopbar();
+  // ---------- offline + updates (web only; the IPA carries its files inside) ----------
+  (function () {
+    const local = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+    if (inApp || !('serviceWorker' in navigator) || !(location.protocol === 'https:' || local)) return;
+    let waiting = null;
+    const offer = (w) => { waiting = w; $('#updateBar').hidden = false; };
+    $('#updateBtn').addEventListener('click', () => {
+      if (exp) { toast('أحدّث بعد ما يخلص القص'); return; }
+      if (waiting) waiting.postMessage('update');
+    });
+    let reloading = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => { if (!reloading && !exp) { reloading = true; location.reload(); } });
+    navigator.serviceWorker.register('sw.js').then((reg) => {
+      if (reg.waiting && navigator.serviceWorker.controller) offer(reg.waiting);
+      reg.addEventListener('updatefound', () => {
+        const w = reg.installing;
+        if (w) w.addEventListener('statechange', () => { if (w.state === 'installed' && navigator.serviceWorker.controller) offer(w); });
+      });
+    }).catch(() => { /* not allowed here (e.g. inside a preview frame) */ });
+  })();
   // ---------- app start ----------
   QEngine.start().then(() => QEngine.send({ type: 'clear' })).catch(() => {});
   (function () {

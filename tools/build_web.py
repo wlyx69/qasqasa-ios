@@ -63,6 +63,13 @@ def main():
         f.unlink()
     for f in (WEB / 'vendor').iterdir():
         (vendor / f.name).write_bytes(f.read_bytes())
+    # service worker: the list of app files plus a content hash, so any change ships a new cache
+    import hashlib, json
+    files = sorted(str(f.relative_to(OUT)).replace('\\', '/') for f in OUT.rglob('*') if f.is_file() and f.name != 'sw.js' and not f.name.startswith('LICENSE') and not f.name.startswith('OFL'))
+    h = hashlib.sha256()
+    for f in files: h.update(f.encode()); h.update((OUT / f).read_bytes())
+    sw = (WEB / 'sw.src.js').read_text().replace('/*VERSION*/', h.hexdigest()[:12]).replace('/*FILES*/', json.dumps(['./'] + files))
+    (OUT / 'sw.js').write_text(sw)
     print('built', OUT, sum(f.stat().st_size for f in OUT.rglob('*') if f.is_file()), 'bytes')
 
 

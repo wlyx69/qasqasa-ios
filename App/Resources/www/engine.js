@@ -82,13 +82,29 @@ async function cutFast(input, meta, part, target, onProgress, isCanceled) {
     const A = part.a / US; const B = part.b / US;
     const toEnd = part.b >= meta.duration;
     const vs = new EncodedPacketSink(vt);
-    const startKey = await vs.getKeyPacket(A + 1e-4);
+    let startKey = await vs.getKeyPacket(A + 1e-4);
+    if (!startKey && part.first) startKey = await vs.getFirstKeyPacket(); // video may start a little after 0 (e.g. joined files)
     if (!startKey) throw new Error('no key packet at ' + A);
     const endKey = toEnd ? null : await vs.getKeyPacket(B + 1e-4);
     if (!toEnd && (!endKey || endKey.sequenceNumber <= startKey.sequenceNumber)) throw new Error('no key packet at ' + B);
     const off = startKey.timestamp;
     const vcfg = await vt.getDecoderConfig();
-    const vIt = vs.packets(startKey, endKey || undefined);
+    // Open GOP (common in HEVC): pictures shown just before a keyframe are stored right after it.
+    // Start: drop those "leading" pictures of our first keyframe (they need the previous part to decode).
+    // End: keep the next keyframe's leading pictures (they belong before our end), plus that keyframe for
+    // an instant as their reference, so no picture is lost between parts.
+    async function* videoPackets() {
+      for await (const pk of vs.packets(startKey, endKey || undefined)) {
+        if (pk.sequenceNumber !== startKey.sequenceNumber && pk.timestamp < A - 1e-6) continue;
+        yield { pk };
+      }
+      if (endKey) {
+        const lead = []; let nx = await vs.getNextPacket(endKey);
+        while (nx && nx.type !== 'key' && nx.timestamp < B - 1e-6 && lead.length < 120) { lead.push(nx); nx = await vs.getNextPacket(nx); }
+        if (lead.length) { yield { pk: endKey, instant: true }; for (const q of lead) yield { pk: q }; }
+      }
+    }
+    const vIt = videoPackets();
     let aIt = null; let acfg = null;
     if (at) {
       const as = new EncodedPacketSink(at);
@@ -108,7 +124,7 @@ async function cutFast(input, meta, part, target, onProgress, isCanceled) {
     const span = Math.max(1e-3, B - A);
     while (!v.done || !au.done) {
       if (isCanceled()) throw new CutCanceled();
-      const takeAudio = !au.done && (v.done || au.value.timestamp < v.value.timestamp);
+      const takeAudio = !au.done && (v.done || au.value.timestamp < v.value.pk.timestamp);
       if (takeAudio) {
         const pk = au.value;
         if (!toEnd && pk.timestamp >= B - 1e-6) { au = { done: true }; await aIt.return(); continue; }
@@ -116,8 +132,9 @@ async function cutFast(input, meta, part, target, onProgress, isCanceled) {
         aFirst = false;
         au = await aIt.next();
       } else {
-        const pk = v.value;
-        await vsrc.add(pk.clone({ timestamp: pk.timestamp - off }), vFirst ? { decoderConfig: vcfg } : undefined);
+        const { pk, instant } = v.value;
+        const out = instant ? pk.clone({ timestamp: pk.timestamp - off, duration: 1 / 1000 }) : pk.clone({ timestamp: pk.timestamp - off });
+        await vsrc.add(out, vFirst ? { decoderConfig: vcfg } : undefined);
         vFirst = false;
         const f = Math.min(1, Math.max(0, (pk.timestamp - A) / span));
         if (f - last > 0.01) { last = f; onProgress(f); }
